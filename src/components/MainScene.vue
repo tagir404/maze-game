@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
 import { SETTINGS } from '@/settings/settings'
 import ThePlayer from './ThePlayer.vue'
 import type { Level } from '@/types/types'
@@ -8,9 +8,13 @@ const props = defineProps<{
     level: Level
 }>()
 
+const currentRoomId = ref(1)
+const currentRoom = computed(() =>
+    props.level.rooms.find(room => room.id === currentRoomId.value)
+)
+
 const sceneBlock = useTemplateRef('sceneRef')
 const sceneWidth = ref()
-
 const playerPosition = ref(0)
 
 const hanlder = (e: KeyboardEvent) => {
@@ -41,7 +45,20 @@ onUnmounted(() => {
         :style="{ backgroundColor: props.level.background }"
         ref="sceneRef"
     >
-        <ThePlayer :playerPosition />
+        <div class="room">
+            <div class="doors">
+                <div
+                    v-for="door in currentRoom?.doors"
+                    :key="door.roomInside"
+                    class="door"
+                    :style="{ backgroundColor: door.background }"
+                ></div>
+            </div>
+            <ThePlayer
+                class="player"
+                :playerPosition
+            />
+        </div>
         <div class="floor"></div>
     </div>
 </template>
@@ -53,6 +70,28 @@ onUnmounted(() => {
     justify-content: flex-end;
     height: 100%;
 }
+
+.room {
+    position: relative;
+}
+
+.doors {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.door {
+    width: 200px;
+    height: 300px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.player {
+    position: absolute;
+    bottom: 0;
+}
+
 .floor {
     height: 30%;
     border-top: 30px solid #828282;

@@ -4,6 +4,7 @@ export interface Level {
 }
 
 export interface Room {
+    id: number
     doors: Door[]
     background: string
 }

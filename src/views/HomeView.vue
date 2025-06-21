@@ -7,6 +7,7 @@ const level: Level = reactive({
     background: '#caf0f8',
     rooms: [
         {
+            id: 1,
             background: '#ade8f4',
             doors: [
                 {
