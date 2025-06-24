@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
+import {
+    computed,
+    nextTick,
+    onMounted,
+    onUnmounted,
+    ref,
+    useTemplateRef,
+    watch
+} from 'vue'
 import { SETTINGS } from '@/settings/settings'
 import ThePlayer from './ThePlayer.vue'
 import type { Level } from '@/types/types'
@@ -9,8 +17,30 @@ const props = defineProps<{
 }>()
 
 const currentRoomId = ref(1)
-const currentRoom = computed(() =>
-    props.level.rooms.find(room => room.id === currentRoomId.value)
+const currentRoom = computed(
+    () => props.level.rooms.find(room => room.id === currentRoomId.value)!
+)
+
+watch(
+    currentRoom,
+    async () => {
+        await nextTick()
+        doorsCoordinates.value = doorElems
+            .value!.map<
+                [number, number]
+            >(door => [door.offsetLeft, door.offsetLeft + SETTINGS.doorWidth])
+            .sort((a, b) => a[0] - b[0])
+    },
+    { immediate: true }
+)
+
+const doorElems = useTemplateRef('door')
+const doorsCoordinates = ref<[number, number][]>([])
+
+const activeDoor = computed(() =>
+    doorsCoordinates.value.findIndex(
+        door => door[0] < playerPosition.value && door[1] > playerPosition.value
+    )
 )
 
 const sceneBlock = useTemplateRef('sceneRef')
@@ -18,15 +48,20 @@ const sceneWidth = ref()
 const playerPosition = ref(0)
 
 const hanlder = (e: KeyboardEvent) => {
-    if (e.key === 'ArrowRight') {
+    if (e.code === 'ArrowRight') {
         if (playerPosition.value + SETTINGS.playerSpeed <= sceneWidth.value)
             playerPosition.value += SETTINGS.playerSpeed
         else playerPosition.value = sceneWidth.value
     }
-    if (e.key === 'ArrowLeft') {
+    if (e.code === 'ArrowLeft') {
         if (playerPosition.value - SETTINGS.playerSpeed >= 0)
             playerPosition.value -= SETTINGS.playerSpeed
         else playerPosition.value = 0
+    }
+    if (e.code === 'Space' && activeDoor.value !== -1) {
+        currentRoomId.value =
+            currentRoom.value.doors[activeDoor.value].roomInside
+        playerPosition.value = 0
     }
 }
 
@@ -42,16 +77,21 @@ onUnmounted(() => {
 <template>
     <div
         class="scene"
-        :style="{ backgroundColor: props.level.background }"
         ref="sceneRef"
     >
         <div class="room">
+            <p class="level-info">Level 1</p>
             <div class="doors">
                 <div
-                    v-for="door in currentRoom?.doors"
+                    v-for="(door, index) in currentRoom.doors"
                     :key="door.roomInside"
                     class="door"
-                    :style="{ backgroundColor: door.background }"
+                    :class="{ door_active: index === activeDoor }"
+                    ref="door"
+                    :style="{
+                        width: `${SETTINGS.doorWidth}px`,
+                        height: `${SETTINGS.doorHeight}px`
+                    }"
                 ></div>
             </div>
             <ThePlayer
@@ -73,6 +113,15 @@ onUnmounted(() => {
 
 .room {
     position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.level-info {
+    font-size: 24px;
+    padding: 20px;
 }
 
 .doors {
@@ -81,10 +130,15 @@ onUnmounted(() => {
 }
 
 .door {
-    width: 200px;
-    height: 300px;
+    background: rgb(181, 181, 181);
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
+    transition: 200ms;
+}
+
+.door_active {
+    /* transform: rotate3d(0, -1, 0, 30deg); */
+    box-shadow: 0 0 50px inset #878787;
 }
 
 .player {
