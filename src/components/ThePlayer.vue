@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SETTINGS } from '@/settings/settings'
+import { playerSize } from '@/settings/settings'
 
 defineProps<{
     playerPosition: number
@@ -11,8 +11,8 @@ defineProps<{
         class="player"
         :style="{
             marginLeft: `${playerPosition}px`,
-            width: `${SETTINGS.playerSize}px`,
-            height: `${SETTINGS.playerSize}px`
+            width: `${playerSize}px`,
+            height: `${playerSize}px`
         }"
     ></div>
 </template>
