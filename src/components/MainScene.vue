@@ -47,17 +47,14 @@ const sceneBlock = useTemplateRef('sceneRef')
 const sceneWidth = ref()
 const playerPosition = ref(0)
 
-const hanlder = (e: KeyboardEvent) => {
-    if (e.code === 'ArrowRight') {
-        if (playerPosition.value + SETTINGS.playerSpeed <= sceneWidth.value)
-            playerPosition.value += SETTINGS.playerSpeed
-        else playerPosition.value = sceneWidth.value
-    }
-    if (e.code === 'ArrowLeft') {
-        if (playerPosition.value - SETTINGS.playerSpeed >= 0)
-            playerPosition.value -= SETTINGS.playerSpeed
-        else playerPosition.value = 0
-    }
+const keys = {
+    left: false,
+    right: false
+}
+
+const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.code === 'ArrowLeft') keys.left = true
+    if (e.code === 'ArrowRight') keys.right = true
     if (e.code === 'Space' && activeDoor.value !== -1) {
         currentRoomId.value =
             currentRoom.value.doors[activeDoor.value].roomInside
@@ -65,12 +62,38 @@ const hanlder = (e: KeyboardEvent) => {
     }
 }
 
+const handleKeyUp = (e: KeyboardEvent) => {
+    if (e.code === 'ArrowLeft') keys.left = false
+    if (e.code === 'ArrowRight') keys.right = false
+}
+
+function gameLoop() {
+    if (keys.left) {
+        const targetPosition = (playerPosition.value -= SETTINGS.playerSpeed)
+        if (targetPosition > 0) playerPosition.value = targetPosition
+        else playerPosition.value = 0
+    }
+    if (keys.right) {
+        const targetPosition = (playerPosition.value += SETTINGS.playerSpeed)
+        if (targetPosition < sceneWidth.value)
+            playerPosition.value = targetPosition
+        else playerPosition.value = sceneWidth.value
+    }
+
+    requestAnimationFrame(gameLoop)
+}
+
 onMounted(() => {
     sceneWidth.value = sceneBlock.value!.offsetWidth - SETTINGS.playerSize
-    document.addEventListener('keydown', hanlder)
+
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keyup', handleKeyUp)
+    requestAnimationFrame(gameLoop)
 })
+
 onUnmounted(() => {
-    document.removeEventListener('keydown', hanlder)
+    document.removeEventListener('keydown', handleKeyDown)
+    document.removeEventListener('keyup', handleKeyUp)
 })
 </script>
 
@@ -130,15 +153,16 @@ onUnmounted(() => {
 }
 
 .door {
-    background: rgb(181, 181, 181);
+    background: var(--door-bg-color);
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
+    border: 10px solid transparent;
+    border-bottom: none;
     transition: 200ms;
 }
 
 .door_active {
-    /* transform: rotate3d(0, -1, 0, 30deg); */
-    box-shadow: 0 0 50px inset #878787;
+    border-color: var(--door-active-border-color);
 }
 
 .player {
@@ -148,7 +172,7 @@ onUnmounted(() => {
 
 .floor {
     height: 30%;
-    border-top: 30px solid #828282;
-    background: #6a6a6a;
+    border-top: 30px solid var(--floor-border-color);
+    background: var(--floor-bg-color);
 }
 </style>

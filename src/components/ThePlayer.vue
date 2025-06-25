@@ -19,7 +19,7 @@ defineProps<{
 
 <style scoped>
 .player {
-    background: rgb(0, 0, 0);
+    background: var(--player-color);
     border-radius: 10px;
 }
 </style>

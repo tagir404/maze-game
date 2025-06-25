@@ -5,6 +5,9 @@
 }
 
 :root {
-    --door-bg:  
-;
+    --player-color: #000;
+    --door-bg-color: rgb(181, 181, 181);
+    --door-active-border-color: rgb(123, 123, 123);
+    --floor-bg-color: #6a6a6a;
+    --floor-border-color: #828282;
 }
