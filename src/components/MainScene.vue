@@ -8,7 +8,7 @@ import {
     useTemplateRef,
     watch
 } from 'vue'
-import { SETTINGS } from '@/settings/settings'
+import { doorWidth, playerSize, playerSpeed } from '@/settings/settings'
 import ThePlayer from './ThePlayer.vue'
 import type { Level } from '@/types/types'
 import DoorItem from './DoorItem.vue'
@@ -29,7 +29,7 @@ watch(
         doorsCoordinates.value = doorElems
             .value!.map<
                 [number, number]
-            >(door => [door!.el!.offsetLeft, door!.el!.offsetLeft + SETTINGS.doorWidth])
+            >(door => [door!.el!.offsetLeft, door!.el!.offsetLeft + doorWidth])
             .sort((a, b) => a[0] - b[0])
     },
     { immediate: true }
@@ -70,12 +70,12 @@ const handleKeyUp = (e: KeyboardEvent) => {
 
 function gameLoop() {
     if (keys.left) {
-        const targetPosition = (playerPosition.value -= SETTINGS.playerSpeed)
+        const targetPosition = (playerPosition.value -= playerSpeed)
         if (targetPosition > 0) playerPosition.value = targetPosition
         else playerPosition.value = 0
     }
     if (keys.right) {
-        const targetPosition = (playerPosition.value += SETTINGS.playerSpeed)
+        const targetPosition = (playerPosition.value += playerSpeed)
         if (targetPosition < sceneWidth.value)
             playerPosition.value = targetPosition
         else playerPosition.value = sceneWidth.value
@@ -85,7 +85,7 @@ function gameLoop() {
 }
 
 onMounted(() => {
-    sceneWidth.value = sceneBlock.value!.offsetWidth - SETTINGS.playerSize
+    sceneWidth.value = sceneBlock.value!.offsetWidth - playerSize
 
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('keyup', handleKeyUp)
@@ -147,19 +147,6 @@ onUnmounted(() => {
     display: flex;
     justify-content: space-evenly;
 }
-
-/* .door {
-    background: var(--door-bg-color);
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    border: 10px solid transparent;
-    border-bottom: none;
-    transition: 200ms;
-}
-
-.door_active {
-    border-color: var(--door-active-border-color);
-} */
 
 .player {
     position: absolute;

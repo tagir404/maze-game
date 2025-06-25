@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SETTINGS } from '@/settings/settings'
+import { doorWidth, doorHeight } from '@/settings/settings'
 import { useTemplateRef } from 'vue'
 
 const props = defineProps<{
@@ -18,8 +18,8 @@ defineExpose({
         class="door"
         :class="{ door_active: props.isActive }"
         :style="{
-            width: `${SETTINGS.doorWidth}px`,
-            height: `${SETTINGS.doorHeight}px`
+            width: `${doorWidth}px`,
+            height: `${doorHeight}px`
         }"
     ></div>
 </template>

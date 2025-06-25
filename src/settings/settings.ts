@@ -1,6 +1,4 @@
-export const SETTINGS = {
-    playerSize: 60,
-    playerSpeed: 5,
-    doorWidth: 200,
-    doorHeight: 300
-}
+export const playerSize = 60
+export const playerSpeed = 5
+export const doorWidth = 200
+export const doorHeight = 300
