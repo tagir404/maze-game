@@ -11,6 +11,7 @@ import {
 import { SETTINGS } from '@/settings/settings'
 import ThePlayer from './ThePlayer.vue'
 import type { Level } from '@/types/types'
+import DoorItem from './DoorItem.vue'
 
 const props = defineProps<{
     level: Level
@@ -28,7 +29,7 @@ watch(
         doorsCoordinates.value = doorElems
             .value!.map<
                 [number, number]
-            >(door => [door.offsetLeft, door.offsetLeft + SETTINGS.doorWidth])
+            >(door => [door!.el!.offsetLeft, door!.el!.offsetLeft + SETTINGS.doorWidth])
             .sort((a, b) => a[0] - b[0])
     },
     { immediate: true }
@@ -105,17 +106,12 @@ onUnmounted(() => {
         <div class="room">
             <p class="level-info">Level 1</p>
             <div class="doors">
-                <div
+                <DoorItem
                     v-for="(door, index) in currentRoom.doors"
                     :key="door.roomInside"
-                    class="door"
-                    :class="{ door_active: index === activeDoor }"
+                    :isActive="index === activeDoor"
                     ref="door"
-                    :style="{
-                        width: `${SETTINGS.doorWidth}px`,
-                        height: `${SETTINGS.doorHeight}px`
-                    }"
-                ></div>
+                />
             </div>
             <ThePlayer
                 class="player"
@@ -152,7 +148,7 @@ onUnmounted(() => {
     justify-content: space-evenly;
 }
 
-.door {
+/* .door {
     background: var(--door-bg-color);
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
@@ -163,7 +159,7 @@ onUnmounted(() => {
 
 .door_active {
     border-color: var(--door-active-border-color);
-}
+} */
 
 .player {
     position: absolute;
